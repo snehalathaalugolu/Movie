@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Ticket Booking</title>
+     <style>
+        /* Same styles as before */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://i.ibb.co/ZNqsB0Q/BG-mv.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 1px solid #fff;
+        }
+
+        .seat.empty {
+            background: #ccc;
+        }
+
+        .seat.selected {
+            background: #6c6;
+        }
+
+        .seat.occupied {
+            background: #d9534f;
+            cursor: not-allowed;
+        }
+
+        button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .seating-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .movie-item {
+            text-align: center;
+        }
+
+        .movie-item img {
+            width: 150px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .summary {
+            margin-top: 20px;
+        }
+
+        .ticket {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            color: #fff;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .ticket img {
+            max-width: 200px;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        @media (max-width: 768px) {
+            .seating-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Wrap the entire content inside a form tag -->
+        <form action="submit.jsp" method="post">
+            <!-- Login Page -->
+            <div id="login-page">
+                <h1>Welcome to</h1>
+                <img src="https://i.ibb.co/pWbgryh/bms.png" alt="BMS Logo" style="width: 200px;">
+                <h2>Movie Ticket Booking</h2>
+      <!--      </div><div id="language-date-page" class="hidden"> -->
+                <h2>Select Language and Date</h2>
+                <label for="language">Select Language:</label>
+                <select id="language" name="language">
+                    <option value="Telugu">Telugu</option>
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi</option>
+                </select>
+                <br><br>
+                <label for="showDate">Select Date:</label>
+                <!-- Add 'name' attribute to the input field -->
+                <input type="date" id="showDate" name="show_date">
+                <br><br>
+                <button onclick="validateDate()">Next</button>
+            </div>
+
+            <!-- City Selection -->
+            <div id="city-page" class="hidden">
+                <h2>Select Your City</h2>
+                <div class="list">
+                    <button type="button" name="city" value="Hyderabad" onclick="selectCity('Hyderabad')">Hyderabad</button>
+                    <button type="button" name="city" value="Vijayawada" onclick="selectCity('Vijayawada')">Vijayawada</button>
+                    <button type="button" name="city" value="Vizag" onclick="selectCity('Vizag')">Vizag</button>
+                    <button type="button" name="city" value="Chennai" onclick="selectCity('Chennai')">Chennai</button>
+                    <button type="button" name="city" value="Mumbai" onclick="selectCity('Mumbai')">Mumbai</button>
+                    <button type="button" name="city" value="Bangalore" onclick="selectCity('Bangalore')">Bangalore</button>
+                    <button type="button" name="city" value="Delhi" onclick="selectCity('Delhi')">Delhi</button>
+                </div>
+            </div>
+
+            <!-- Movie Selection -->
+            <div id="movie-page" class="hidden">
+                <h2>Select a Movie</h2>
+                <div class="list">
+                    <div class="movie-item" onclick="selectMovie('Pushpa-2', 'https://i.ibb.co/N1fxKq8/1-mv.jpg')">
+                        <img src="https://i.ibb.co/N1fxKq8/1-mv.jpg" alt="Pushpa-2">
+                        <p>Pushpa-2</p>
+                    </div>
+                    <div class="movie-item" onclick="selectMovie('Game Changer', 'https://i.ibb.co/F8TVpmT/2-mv.jpg')">
+                        <img src="https://i.ibb.co/F8TVpmT/2-mv.jpg" alt="Game Changer">
+                        <p>Game Changer</p>
+                    </div>
+                    <div class="movie-item" onclick="selectMovie('Dhaku Maharaj', 'https://i.ibb.co/Qj2sKwF/3-mv.jpg')">
+                        <img src="https://i.ibb.co/Qj2sKwF/3-mv.jpg" alt="Dhaku Maharaj">
+                        <p>Dhaku Maharaj</p>
+                    </div>
+                    <div class="movie-item" onclick="selectMovie('Sankranthiki Vastunam', 'https://i.ibb.co/B3ztzVr/4-mv.jpg')">
+                        <img src="https://i.ibb.co/B3ztzVr/4-mv.jpg" alt="Sankranthiki Vastunam">
+                        <p>Sankranthiki Vastunam</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theater Selection -->
+            <div id="theater-page" class="hidden">
+                <h2>Select a Theater</h2>
+                <div class="list">
+                    <button type="button" name="theater" value="Capital Cinemas" onclick="selectTheater('Capital Cinemas')">Capital Cinemas</button>
+                    <button type="button" name="theater" value="PVP" onclick="selectTheater('PVP')">PVP</button>
+                    <button type="button" name="theater" value="PVR" onclick="selectTheater('PVR')">PVR</button>
+                    <button type="button" name="theater" value="INOX" onclick="selectTheater('INOX')">INOX</button>
+                </div>
+            </div>
+
+            <!-- Show Timing Selection -->
+            <div id="time-page" class="hidden">
+                <h2>Select a Show Time</h2>
+                <div class="list" id="show-times"></div>
+            </div>
+
+            <!-- Seat Selection -->
+            <div id="seating-page" class="hidden">
+                <h2>Select Your Seats</h2>
+                <div class="screen-box">Screen This Way</div>
+                <div id="seating-grid" class="seating-grid"></div>
+                <button onclick="proceedToBilling()">Proceed to Billing</button>
+            </div>
+
+            <!-- Billing Page -->
+            <div id="billing-page" class="hidden">
+                <h2>Billing Details</h2>
+                <p id="billing-summary"></p>
+                <div class="summary">
+                    <p>Subtotal: ₹<span id="total-amount"></span></p>
+                    <p>Discount: ₹<span id="discount"></span></p>
+                    <p>Final Total: ₹<span id="final-price"></span></p>
+                </div>
+                <button onclick="confirmBooking()">Confirm Booking</button>
+            </div>
+
+            <!-- Confirmation Page -->
+            <div id="confirmation-page" class="hidden">
+                <h2>Booking Confirmed!</h2>
+                <div class="ticket">
+                    <img id="movie-poster" src="" alt="Movie Poster">
+                    <h3 id="movie-title"></h3>
+                    <p id="movie-details"></p>
+                    <p id="theater-details"></p>
+                    <p id="seat-details"></p>
+                    <p>Total: ₹<span id="final-total"></span></p>
+                    <p>Booking ID: <span id="booking-id"></span></p>
+                </div>
+            </div>
+<div style="text-align: center; margin-top: 20px;">
+    <a href="fetchData.jsp" style="color: #fff; font-size: 18px; text-decoration: none; background-color: #007bff; padding: 10px 20px; border-radius: 5px;">View Booking Data</a>
+</div>
+<!-- Add these links to index.html -->
+<div style="text-align: center; margin-top: 20px;">
+    <a href="updateBooking.jsp" style="color: #fff; font-size: 18px; text-decoration: none; background-color: #28a745; padding: 10px 20px; border-radius: 5px;">Update Booking</a>
+    <a href="cancelBooking.jsp" style="color: #fff; font-size: 18px; text-decoration: none; background-color: #ff4d4d; padding: 10px 20px; border-radius: 5px; margin-left: 20px;">Cancel Booking</a>
+</div>
+ <a href="logout.jsp">
+        <button>Logout</button>
+ </a>
+        </form>
+    </div>
+
+
+    <script>
+        let selectedSeats = [];
+        let selectedMovie = {};
+        let selectedTheater = "";
+        let selectedShowTime = "";
+        const ticketPrice = 150;
+        const gst = 0.18;
+        const bookingCharge = 20;
+
+        function validatePhoneNumber() {
+            const phone = document.getElementById("phone-number").value;
+            if (/^\d{10}$/.test(phone)) {
+                navigate('language-date-page');
+                document.getElementById('showDate').min = new Date().toISOString().split('T')[0];
+            } else {
+                alert("Please enter a valid 10-digit phone number.");
+            }
+        }
+
+        function validateDate() {
+            const language = document.getElementById("language").value;
+            const date = document.getElementById("showDate").value;
+            if (language && date) {
+                navigate('city-page');
+            } else {
+                alert("Please select a language and a valid date.");
+            }
+        }
+
+        function navigate(pageId) {
+            document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function selectCity(city) {
+            console.log(`Selected City: ${city}`);
+            navigate('movie-page');
+        }
+
+        function selectMovie(movie, poster) {
+            selectedMovie = { name: movie, poster };
+            console.log(`Selected Movie: ${movie}`);
+            navigate('theater-page');
+        }
+
+        function selectTheater(theater) {
+            selectedTheater = theater;
+            console.log(`Selected Theater: ${theater}`);
+            navigate('time-page');
+            document.getElementById("show-times").innerHTML = `
+                <button onclick="selectShowTime('10:00 AM')">10:00 AM</button>
+                <button onclick="selectShowTime('2:00 PM')">2:00 PM</button>
+                <button onclick="selectShowTime('6:00 PM')">6:00 PM</button>
+                <button onclick="selectShowTime('9:30 PM')">9:30 PM</button>
+            `;
+        }
+
+        function selectShowTime(time) {
+            selectedShowTime = time;
+            console.log(`Selected Show Time: ${time}`);
+            generateSeatingGrid();
+            navigate('seating-page');
+        }
+
+        function generateSeatingGrid() {
+            const grid = document.getElementById("seating-grid");
+            grid.innerHTML = "";
+            for (let i = 1; i <= 100; i++) {
+                const seat = document.createElement("div");
+                seat.className = "seat empty";
+                seat.innerText = i;
+                seat.onclick = () => selectSeat(seat, i);
+                grid.appendChild(seat);
+            }
+        }
+
+        function selectSeat(seatElement, seatNumber) {
+            if (seatElement.classList.contains("occupied")) return;
+
+            if (seatElement.classList.contains("selected")) {
+                seatElement.classList.remove("selected");
+                selectedSeats = selectedSeats.filter(seat => seat !== seatNumber);
+            } else {
+                seatElement.classList.add("selected");
+                selectedSeats.push(seatNumber);
+            }
+            console.log(`Selected Seats: ${selectedSeats}`);
+        }
+
+        function proceedToBilling() {
+            if (selectedSeats.length === 0) {
+                alert("Please select at least one seat.");
+                return;
+            }
+            const subtotal = selectedSeats.length * ticketPrice;
+            const tax = subtotal * gst;
+            const total = subtotal + tax + bookingCharge;
+            const discount = selectedSeats.length > 3 ? subtotal * 0.1 : 0;
+            const finalPrice = total - discount;
+
+            document.getElementById("billing-summary").innerText = `
+                ${selectedSeats.length} tickets x ₹${ticketPrice} = ₹${subtotal}
+                + Booking Charge = ₹${bookingCharge}
+                + GST = ₹${tax.toFixed(2)}`;
+            document.getElementById("total-amount").innerText = total.toFixed(2);
+            document.getElementById("discount").innerText = discount.toFixed(2);
+            document.getElementById("final-price").innerText = finalPrice.toFixed(2);
+            navigate('billing-page');
+        }
+
+        function confirmBooking() {
+            document.getElementById("movie-poster").src = selectedMovie.poster;
+            document.getElementById("movie-title").innerText = selectedMovie.name;
+            document.getElementById("movie-details").innerText = `${document.getElementById("language").value}, ${selectedShowTime}`;
+            document.getElementById("theater-details").innerText = `${selectedTheater}`;
+            document.getElementById("seat-details").innerText = `Seats: ${selectedSeats.join(", ")}`;
+            document.getElementById("final-total").innerText = document.getElementById("final-price").innerText;
+            document.getElementById("booking-id").innerText = Math.random().toString(36).substr(2, 9).toUpperCase();
+            navigate('confirmation-page');
+        }
+    </script>
+</body>
+</html>
